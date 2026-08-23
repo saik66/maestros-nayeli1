@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferretería Nayeli | Maestro</title>
+<link rel="stylesheet" href="style.css">
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; background: #f5f5f5; font-family: Arial, sans-serif; color: #222; }
+
+/* HEADER */
+.maestro-header { background: #fff; padding: 16px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100; }
+.marca { display: flex; align-items: center; gap: 10px; }
+.marca-icono { font-size: 30px; }
+.marca h1 { margin: 0; font-size: 20px; }
+.marca small { color: #777; }
+
+/* HEADER DERECHA */
+.header-derecha { display: flex; flex-direction: column; align-items: flex-end; }
+
+/* SALDO */
+.saldo-box { background: #111; color: #fff; padding: 9px 16px; border-radius: 14px; text-align: right; min-width: 125px; }
+.saldo-box span { display: block; font-size: 11px; color: #bbb; margin-bottom: 2px; }
+.saldo-box strong { display: block; font-size: 20px; color: #ffd600; }
+
+/* BOTON SALIR */
+.btn-salir { border: none; background: transparent; color: #c62828; cursor: pointer; font-weight: bold; margin-top: 7px; padding: 3px 0; }
+.btn-salir:hover { color: #8e0000; }
+
+/* CONTENEDOR */
+.maestro-container { width: 100%; max-width: 1100px; margin: auto; padding: 25px 18px 60px; }
+
+/* BIENVENIDA */
+.bienvenida { background: #fff; border-radius: 18px; padding: 24px; margin-bottom: 28px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
+.bienvenida h2 { margin: 0 0 8px; font-size: 24px; }
+.bienvenida p { margin: 0; color: #777; line-height: 1.5; }
+
+/* TITULO PREMIOS */
+.titulo-premios { margin-bottom: 18px; }
+.titulo-premios h2 { margin: 0; font-size: 23px; }
+.titulo-premios p { color: #777; margin-top: 6px; }
+
+/* GRID */
+.premios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+
+/* TARJETA PREMIO */
+.premio-card { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 5px 18px rgba(0,0,0,.07); transition: transform .2s, box-shadow .2s; }
+.premio-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,.12); }
+
+/* IMAGEN */
+.premio-imagen { width: 100%; height: 190px; object-fit: cover; display: block; background: #eee; }
+.premio-sin-imagen { width: 100%; height: 190px; display: flex; align-items: center; justify-content: center; font-size: 60px; background: #eee; }
+
+/* CONTENIDO */
+.premio-contenido { padding: 18px; }
+.premio-contenido h3 { margin: 0 0 7px; font-size: 19px; }
+.premio-descripcion { color: #777; font-size: 14px; line-height: 1.4; min-height: 40px; }
+.premio-puntos { margin-top: 14px; font-size: 18px; font-weight: bold; }
+.premio-dinero { margin-top: 6px; color: #2e7d32; font-weight: bold; }
+
+/* BOTON CANJEAR */
+.btn-canjear { width: 100%; margin-top: 15px; border: none; padding: 13px; border-radius: 10px; background: #111; color: #fff; font-weight: bold; cursor: pointer; font-size: 14px; }
+.btn-canjear:hover { background: #333; }
+.btn-canjear:disabled { background: #aaa; cursor: not-allowed; }
+
+/* ESTADO VACIO */
+.estado-vacio { background: #fff; border-radius: 18px; padding: 45px 20px; text-align: center; grid-column: 1 / -1; }
+.estado-vacio div { font-size: 55px; }
+.estado-vacio h3 { margin-bottom: 5px; }
+.estado-vacio p { color: #777; }
+
+/* MENSAJE */
+.mensaje-error { background: #fff; border-radius: 18px; padding: 30px; text-align: center; color: #c62828; grid-column: 1 / -1; }
+
+/* MODAL CANJE */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 999; }
+.modal.activo { display: flex; }
+.modal-contenido { background: #fff; width: 100%; max-width: 430px; border-radius: 20px; padding: 25px; text-align: center; }
+.modal-contenido h2 { margin-top: 0; }
+.modal-premio { font-size: 22px; font-weight: bold; margin: 15px 0; }
+.modal-puntos { font-size: 18px; font-weight: bold; }
+.modal-botones { display: flex; gap: 10px; margin-top: 20px; }
+.modal-botones button { flex: 1; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+.btn-confirmar { background: #111; color: #fff; }
+.btn-cancelar { background: #eee; color: #222; }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .maestro-header { padding: 12px; }
+    .marca-icono { font-size: 25px; }
+    .marca h1 { font-size: 16px; }
+    .marca small { font-size: 11px; }
+    .saldo-box { padding: 8px 11px; min-width: 105px; }
+    .saldo-box strong { font-size: 17px; }
+    .maestro-container { padding: 18px 12px 40px; }
+    .bienvenida { padding: 20px; }
+    .bienvenida h2 { font-size: 20px; }
+    .premios-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .premio-imagen, .premio-sin-imagen { height: 145px; }
+    .premio-contenido { padding: 12px; }
+    .premio-contenido h3 { font-size: 16px; }
+    .premio-descripcion { font-size: 12px; }
+    .premio-puntos { font-size: 15px; }
+    .btn-canjear { font-size: 12px; padding: 11px 5px; }
+}
+</style>
+</head>
+<body>
+
+<header class="maestro-header">
+    <div class="marca">
+    <img src="images/logo-nayeli.png" alt="Ferretería Nayeli" class="marca-logo">
+    <div>
+        <small></small>
+    </div>
+</div>
+    <div class="header-derecha">
+        <div class="saldo-box">
+            <span>MIS PUNTOS</span>
+            <strong id="saldoPuntos">⭐ 0</strong>
+        </div>
+        <button id="btnCerrarSesion" class="btn-salir">Cerrar sesión</button>
+    </div>
+</header>
+
+<main class="maestro-container">
+
+    <section class="bienvenida">
+        <h2 id="saludo">¡Hola, Maestro! 👷</h2>
+        <p>Acumula puntos con tus compras y canjéalos por increíbles premios.</p>
+    </section>
+
+    <section>
+        <div class="titulo-premios">
+            <h2>🎁 Premios disponibles</h2>
+            <p>Mira todo lo que puedes conseguir con tus puntos.</p>
+        </div>
+        <div id="premiosGrid" class="premios-grid">
+            <div class="estado-vacio">
+                <div>⏳</div>
+                <h3>Cargando premios...</h3>
+                <p>Espera un momento.</p>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div id="modalCanje" class="modal">
+    <div class="modal-contenido">
+        <h2>🎁 Confirmar canje</h2>
+        <div id="modalPremio" class="modal-premio">Premio</div>
+        <div id="modalPuntos" class="modal-puntos">⭐ 0 puntos</div>
+        <p>¿Quieres solicitar este premio?</p>
+        <div class="modal-botones">
+            <button id="btnCancelarCanje" class="btn-cancelar">Cancelar</button>
+            <button id="btnConfirmarCanje" class="btn-confirmar">🎁 Confirmar</button>
+        </div>
+        <p id="mensajeCanje" style="margin-top:15px; font-weight:bold;"></p>
+    </div>
+</div>
+
+<script type="module">
+
+import {
+    auth,
+    db,
+    onAuthStateChanged,
+    signOut,
+    doc,
+    getDoc,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    runTransaction,
+    serverTimestamp
+} from "./firebase.js";
+
+
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
+const saldoPuntos = document.getElementById("saldoPuntos");
+const saludo = document.getElementById("saludo");
+const premiosGrid = document.getElementById("premiosGrid");
+const btnCerrarSesion = document.getElementById("btnCerrarSesion");
+const modalCanje = document.getElementById("modalCanje");
+const modalPremio = document.getElementById("modalPremio");
+const modalPuntos = document.getElementById("modalPuntos");
+const mensajeCanje = document.getElementById("mensajeCanje");
+const btnCancelarCanje = document.getElementById("btnCancelarCanje");
+const btnConfirmarCanje = document.getElementById("btnConfirmarCanje");
+
+let maestroActual = null;
+let premioSeleccionado = null;
+let listaPremiosActual = [];
+
+
+// =====================================================
+// ESCAPAR HTML
+// =====================================================
+
+function escapeHTML(valor) {
+    const div = document.createElement("div");
+    div.textContent = String(valor ?? "");
+    return div.innerHTML;
+}
+
+
+// =====================================================
+// CARGAR DATOS DEL MAESTRO
+// =====================================================
+
+async function cargarDatosMaestro(uid) {
+
+    const referencia = doc(db, "maestros", uid);
+    const snapshot = await getDoc(referencia);
+
+    if (!snapshot.exists()) {
+        console.error("No se encontró el maestro.");
+        window.location.href = "index.html";
+        return;
+    }
+
+    maestroActual = { id: uid, ...snapshot.data() };
+
+    // refrescar la sesión guardada localmente
+    localStorage.setItem("maestroSesion", JSON.stringify(maestroActual));
+
+    saludo.textContent = `¡Hola, ${maestroActual.nombre}! 👷`;
+    saldoPuntos.textContent = `⭐ ${Number(maestroActual.puntos || 0).toLocaleString("es-EC")}`;
+
+    if (maestroActual.estado && maestroActual.estado !== "activo") {
+        saludo.textContent = "Cuenta bloqueada 🔒";
+        saldoPuntos.textContent = "⭐ 0";
+        premiosGrid.innerHTML = `
+            <div class="mensaje-error">
+                <div style="font-size:50px;">🔒</div>
+                <h3>Tu cuenta está bloqueada</h3>
+                <p>Comunícate con Ferretería Nayeli.</p>
+            </div>
+        `;
+        return false;
+    }
+
+    return true;
+}
+
+
+// =====================================================
+// CARGAR PREMIOS
+// =====================================================
+
+async function cargarPremios() {
+
+    try {
+        const premiosQuery = query(collection(db, "premios"), orderBy("puntos", "asc"));
+        const snapshot = await getDocs(premiosQuery);
+
+        listaPremiosActual = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    } catch (error) {
+        console.error("Error cargando premios:", error);
+        premiosGrid.innerHTML = `
+            <div class="mensaje-error">
+                <div style="font-size:50px;">❌</div>
+                <h3>No se pudieron cargar los premios</h3>
+                <p>Revisa la consola para ver el error.</p>
+            </div>
+        `;
+        return;
+    }
+
+    if (listaPremiosActual.length === 0) {
+        premiosGrid.innerHTML = `
+            <div class="estado-vacio">
+                <div>🎁</div>
+                <h3>Todavía no hay premios</h3>
+                <p>Pronto aparecerán nuevos premios.</p>
+            </div>
+        `;
+        return;
+    }
+
+    premiosGrid.innerHTML = listaPremiosActual.map(premio => {
+
+        const puntos = Number(premio.puntos || 0);
+        const dinero = Number(premio.dinero_adicional || 0);
+        const imagen = premio.imagen_url || "";
+        const disponible = premio.disponible !== false;
+        const puntosMaestro = Number(maestroActual?.puntos || 0);
+        const puedeCanjear = puntosMaestro >= puntos && disponible;
+
+        return `
+            <article class="premio-card">
+                ${imagen
+                    ? `<img class="premio-imagen" src="${imagen}" alt="${escapeHTML(premio.nombre)}" loading="lazy">`
+                    : `<div class="premio-sin-imagen">🎁</div>`
+                }
+                <div class="premio-contenido">
+                    <h3>${escapeHTML(premio.nombre || "Premio")}</h3>
+                    <div class="premio-descripcion">${escapeHTML(premio.descripcion || "Premio especial para maestros.")}</div>
+                    <div class="premio-puntos">⭐ ${puntos.toLocaleString("es-EC")} puntos</div>
+                    ${dinero > 0 ? `<div class="premio-dinero">💵 +$${dinero.toFixed(2)}</div>` : ""}
+                    <button class="btn-canjear" data-id="${premio.id}" ${!puedeCanjear ? "disabled" : ""}>
+                        ${!disponible ? "AGOTADO" : (puntosMaestro < puntos ? "⭐ PUNTOS INSUFICIENTES" : "🎁 CANJEAR")}
+                    </button>
+                </div>
+            </article>
+        `;
+
+    }).join("");
+
+    document.querySelectorAll(".btn-canjear").forEach(boton => {
+        boton.addEventListener("click", () => {
+            const premio = listaPremiosActual.find(p => String(p.id) === String(boton.dataset.id));
+            if (!premio) return;
+            abrirModalCanje(premio);
+        });
+    });
+}
+
+
+// =====================================================
+// MODAL DE CANJE
+// =====================================================
+
+function abrirModalCanje(premio) {
+    premioSeleccionado = premio;
+    modalPremio.textContent = premio.nombre || "Premio";
+    modalPuntos.textContent = `⭐ ${Number(premio.puntos || 0).toLocaleString("es-EC")} puntos`;
+    mensajeCanje.textContent = "";
+    btnConfirmarCanje.disabled = false;
+    modalCanje.classList.add("activo");
+}
+
+function cerrarModalCanje() {
+    modalCanje.classList.remove("activo");
+    premioSeleccionado = null;
+}
+
+btnCancelarCanje.addEventListener("click", cerrarModalCanje);
+
+modalCanje.addEventListener("click", event => {
+    if (event.target === modalCanje) cerrarModalCanje();
+});
+
+
+// =====================================================
+// CONFIRMAR CANJE (transacción: descuenta puntos y crea el registro)
+// =====================================================
+
+btnConfirmarCanje.addEventListener("click", async () => {
+
+    if (!premioSeleccionado || !maestroActual) return;
+
+    const puntosNecesarios = Number(premioSeleccionado.puntos || 0);
+    const puntosActuales = Number(maestroActual.puntos || 0);
+
+    if (puntosActuales < puntosNecesarios) {
+        mensajeCanje.textContent = "❌ No tienes suficientes puntos.";
+        mensajeCanje.style.color = "#c62828";
+        return;
+    }
+
+    btnConfirmarCanje.disabled = true;
+    mensajeCanje.textContent = "⏳ Procesando solicitud...";
+    mensajeCanje.style.color = "#555";
+
+    try {
+
+        const maestroRef = doc(db, "maestros", maestroActual.id);
+
+        await runTransaction(db, async (transaction) => {
+
+            const maestroSnap = await transaction.get(maestroRef);
+
+            if (!maestroSnap.exists()) {
+                throw new Error("No se encontró tu cuenta.");
+            }
+
+            const puntosReales = Number(maestroSnap.data().puntos || 0);
+
+            if (puntosReales < puntosNecesarios) {
+                throw new Error("No tienes suficientes puntos.");
+            }
+
+            const nuevoSaldo = puntosReales - puntosNecesarios;
+
+            transaction.update(maestroRef, { puntos: nuevoSaldo });
+
+            const canjeRef = doc(collection(db, "canjes"));
+
+            transaction.set(canjeRef, {
+                maestro_id: maestroActual.id,
+                premio_id: premioSeleccionado.id,
+                puntos: puntosNecesarios,
+                pago_adicional: Number(premioSeleccionado.dinero_adicional || 0),
+                estado: "pendiente",
+                creado_at: serverTimestamp()
+            });
+        });
+
+        mensajeCanje.textContent = "✅ Solicitud de canje enviada correctamente.";
+        mensajeCanje.style.color = "#2e7d32";
+
+        await cargarDatosMaestro(maestroActual.id);
+
+        setTimeout(async () => {
+            cerrarModalCanje();
+            await cargarPremios();
+        }, 1200);
+
+    } catch (error) {
+        console.error("❌ ERROR DEL CANJE:", error);
+        mensajeCanje.textContent = "❌ Error: " + (error.message || "Error desconocido");
+        mensajeCanje.style.color = "#c62828";
+        btnConfirmarCanje.disabled = false;
+    }
+});
+
+
+// =====================================================
+// CERRAR SESIÓN
+// =====================================================
+
+btnCerrarSesion.addEventListener("click", async () => {
+    const confirmar = confirm("¿Seguro que quieres cerrar sesión?");
+    if (!confirmar) return;
+
+    await signOut(auth);
+    localStorage.removeItem("maestroSesion");
+    window.location.href = "index.html";
+});
+
+
+// =====================================================
+// INICIAR PANEL
+// =====================================================
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+        localStorage.removeItem("maestroSesion");
+        window.location.href = "index.html";
+        return;
+    }
+
+    const sigueActivo = await cargarDatosMaestro(user.uid);
+    if (sigueActivo === false) return;
+
+    await cargarPremios();
+
+    console.log("✅ Panel del maestro (Firebase) cargado correctamente.");
+});
+
+</script>
+</body>
+</html>

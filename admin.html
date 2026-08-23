@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Ferretería Nayeli</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="login-container">
+    <div class="login-card">
+
+        <div class="logo-container">
+            <img id="logoAdmin" src="" alt="Ferretería Nayeli">
+        </div>
+
+        <h1>Panel Administrador</h1>
+        <p class="subtitle">Ferretería Nayeli</p>
+
+        <form id="adminLoginForm">
+            <label for="adminEmail">Correo electrónico</label>
+            <input type="email" id="adminEmail" placeholder="admin@nayeli.com" autocomplete="email" required>
+
+            <label for="adminPassword">Contraseña</label>
+            <input type="password" id="adminPassword" placeholder="Tu contraseña" autocomplete="current-password" required>
+
+            <button type="submit">INGRESAR</button>
+        </form>
+
+        <p id="mensajeAdmin" class="mensaje"></p>
+
+    </div>
+</main>
+
+<script type="module">
+import { auth, signInWithEmailAndPassword } from "./firebase.js";
+
+const formulario = document.getElementById("adminLoginForm");
+const mensaje = document.getElementById("mensajeAdmin");
+
+formulario.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    mensaje.textContent = "Iniciando sesión...";
+    mensaje.style.color = "#555";
+
+    const email = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value;
+
+    try {
+        const credencial = await signInWithEmailAndPassword(auth, email, password);
+        console.log("ADMIN conectado:", credencial.user);
+        window.location.href = "admin-panel.html";
+    } catch (error) {
+        console.error(error);
+        mensaje.textContent = "Correo o contraseña incorrectos.";
+        mensaje.style.color = "#c62828";
+    }
+});
+</script>
+
+</body>
+</html>

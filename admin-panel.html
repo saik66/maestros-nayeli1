@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Ferretería Nayeli</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="admin-header">
+    <div>
+        <h1>🔨 Ferretería Nayeli</h1>
+        <p>Panel de Administración</p>
+    </div>
+    <button id="btnCerrarSesion" class="btn-secondary">Cerrar sesión</button>
+</header>
+
+<main class="admin-container">
+
+    <section class="dashboard-grid">
+        <div class="dashboard-card">
+            <span>👷</span>
+            <h3>Maestros</h3>
+            <strong id="totalMaestros">0</strong>
+        </div>
+        <div class="dashboard-card">
+            <span>⭐</span>
+            <h3>Puntos entregados</h3>
+            <strong id="totalPuntos">0</strong>
+        </div>
+        <div class="dashboard-card">
+            <span>🎁</span>
+            <h3>Premios</h3>
+            <strong id="totalPremios">0</strong>
+        </div>
+        <div class="dashboard-card">
+            <span>🎟️</span>
+            <h3>Canjes pendientes</h3>
+            <strong id="totalCanjes">0</strong>
+        </div>
+    </section>
+
+    <section class="admin-section">
+        <h2>Administración</h2>
+        <div class="admin-actions">
+            <button class="admin-action" id="btnCrearMaestro">
+                <span>👷</span>
+                <strong>Crear maestro</strong>
+                <small>Registrar un nuevo maestro</small>
+            </button>
+            <button class="admin-action" id="btnVerMaestros">
+                <span>📋</span>
+                <strong>Maestros</strong>
+                <small>Buscar y administrar maestros</small>
+            </button>
+            <button class="admin-action" id="btnAgregarPuntos">
+                <span>⭐</span>
+                <strong>Agregar puntos</strong>
+                <small>Registrar puntos de una compra</small>
+            </button>
+            <button class="admin-action" id="btnPremios">
+                <span>🎁</span>
+                <strong>Premios</strong>
+                <small>Crear y administrar premios</small>
+            </button>
+            <button class="admin-action" id="btnCanjes">
+                <span>🎟️</span>
+                <strong>Canjes</strong>
+                <small>Revisar solicitudes</small>
+            </button>
+        </div>
+    </section>
+
+    <section id="contenidoAdmin" class="admin-section">
+        <h2>Bienvenido 👋</h2>
+        <p>Selecciona una opción para comenzar.</p>
+    </section>
+
+</main>
+
+<script type="module">
+import {
+    auth,
+    db,
+    secondaryAuth,
+    onAuthStateChanged,
+    signOut,
+    createUserWithEmailAndPassword,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    addDoc,
+    collection,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    runTransaction,
+    serverTimestamp,
+    codigoAEmail
+} from "./firebase.js";
+
+const contenido = document.getElementById("contenidoAdmin");
+
+// ===== VERIFICAR SESIÓN =====
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "admin.html";
+    } else {
+        cargarResumen();
+    }
+});
+
+// ===== CERRAR SESIÓN =====
+document.getElementById("btnCerrarSesion").addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "admin.html";
+});
+
+// =====================================================
+// CREAR MAESTRO
+// =====================================================
+document.getElementById("btnCrearMaestro").addEventListener("click", () => {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>👷 Crear maestro</h2>
+            <p>Registra un nuevo maestro.</p>
+        </div>
+        <form id="formCrearMaestro" class="admin-form">
+            <label>Nombre completo</label>
+            <input type="text" id="nuevoNombre" placeholder="Ej: Juan Pérez" required>
+            <label>Teléfono</label>
+            <input type="tel" id="nuevoTelefono" placeholder="Ej: 0999999999">
+            <label>ID del maestro</label>
+            <input type="text" id="nuevoCodigo" placeholder="Ej: M-0001" required>
+            <label>PIN</label>
+            <input type="password" id="nuevoPin" placeholder="Mínimo 6 caracteres" inputmode="numeric" minlength="6" required>
+            <button type="submit">👷 CREAR MAESTRO</button>
+            <p id="mensajeCrearMaestro" class="mensaje"></p>
+        </form>
+    `;
+
+    const formulario = document.getElementById("formCrearMaestro");
+    const mensaje = document.getElementById("mensajeCrearMaestro");
+
+    formulario.addEventListener("submit", async e => {
+        e.preventDefault();
+
+        mensaje.textContent = "Creando maestro...";
+        mensaje.style.color = "#555";
+
+        const nombre = document.getElementById("nuevoNombre").value.trim();
+        const telefono = document.getElementById("nuevoTelefono").value.trim();
+        const codigo = document.getElementById("nuevoCodigo").value.trim().toUpperCase();
+        const pin = document.getElementById("nuevoPin").value;
+
+        if (pin.length < 6) {
+            mensaje.textContent = "❌ El PIN debe tener mínimo 6 caracteres (Firebase lo exige).";
+            mensaje.style.color = "#c62828";
+            return;
+        }
+
+        try {
+            const email = codigoAEmail(codigo);
+
+            // Se crea con la instancia SECUNDARIA para no cerrar tu sesión de admin
+            const credencial = await createUserWithEmailAndPassword(secondaryAuth, email, pin);
+            const uid = credencial.user.uid;
+
+            await setDoc(doc(db, "maestros", uid), {
+                codigo,
+                nombre,
+                telefono,
+                puntos: 0,
+                estado: "activo",
+                created_at: serverTimestamp()
+            });
+
+            await signOut(secondaryAuth);
+
+            mensaje.textContent = "✅ Maestro creado correctamente.";
+            mensaje.style.color = "#2e7d32";
+            formulario.reset();
+            cargarResumen();
+
+        } catch (error) {
+            console.error("Error creando maestro:", error);
+            if (error.code === "auth/email-already-in-use") {
+                mensaje.textContent = "❌ Ya existe un maestro con ese ID.";
+            } else {
+                mensaje.textContent = error.message || "❌ No se pudo crear el maestro.";
+            }
+            mensaje.style.color = "#c62828";
+        }
+    });
+});
+
+// =====================================================
+// VER MAESTROS
+// =====================================================
+document.getElementById("btnVerMaestros").addEventListener("click", mostrarPantallaMaestros);
+
+async function mostrarPantallaMaestros() {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>📋 Maestros</h2>
+            <p>Administra los maestros registrados.</p>
+        </div>
+        <input type="search" id="buscarMaestro" placeholder="🔎 Buscar por nombre o ID..." class="buscador-maestros">
+        <div id="listaMaestros"><p>Cargando maestros...</p></div>
+    `;
+
+    const lista = document.getElementById("listaMaestros");
+
+    let maestros = [];
+    try {
+        const q = query(collection(db, "maestros"), orderBy("created_at", "desc"));
+        const snapshot = await getDocs(q);
+        maestros = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (error) {
+        console.error(error);
+        lista.innerHTML = `<p class="mensaje">❌ No se pudieron cargar los maestros.</p>`;
+        return;
+    }
+
+    const buscador = document.getElementById("buscarMaestro");
+
+    function mostrarMaestros(filtro = "") {
+        const texto = filtro.toLowerCase().trim();
+
+        const filtrados = maestros.filter(m => {
+            const nombre = String(m.nombre || "").toLowerCase();
+            const codigo = String(m.codigo || "").toLowerCase();
+            return nombre.includes(texto) || codigo.includes(texto);
+        });
+
+        if (filtrados.length === 0) {
+            lista.innerHTML = `
+                <div class="empty-state">
+                    <h3>👷 No encontramos maestros</h3>
+                    <p>Prueba otro nombre o ID.</p>
+                </div>
+            `;
+            return;
+        }
+
+        lista.innerHTML = filtrados.map(m => `
+            <div class="maestro-card">
+                <div class="maestro-info">
+                    <div class="maestro-avatar">👷</div>
+                    <div>
+                        <h3>${m.nombre}</h3>
+                        <p>ID: <strong>${m.codigo}</strong></p>
+                        <p>📞 ${m.telefono || "Sin teléfono"}</p>
+                        <span class="estado ${m.estado}">${m.estado === "activo" ? "● Activo" : "● Bloqueado"}</span>
+                    </div>
+                </div>
+                <div class="maestro-puntos">
+                    <span>⭐</span>
+                    <strong>${Number(m.puntos || 0).toLocaleString()}</strong>
+                    <small>puntos</small>
+                </div>
+                <div class="maestro-actions">
+                    <button class="btn-editar-maestro" data-id="${m.id}">✏️ Editar</button>
+                </div>
+            </div>
+        `).join("");
+
+        document.querySelectorAll(".btn-editar-maestro").forEach(boton => {
+            boton.addEventListener("click", () => {
+                const maestro = maestros.find(m => m.id === boton.dataset.id);
+                if (maestro) abrirEditarMaestro(maestro);
+            });
+        });
+    }
+
+    mostrarMaestros();
+    buscador.addEventListener("input", () => mostrarMaestros(buscador.value));
+}
+
+// ===== EDITAR MAESTRO =====
+function abrirEditarMaestro(maestro) {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>✏️ Editar maestro</h2>
+            <p>${maestro.nombre}</p>
+        </div>
+        <form id="formEditarMaestro" class="admin-form">
+            <label>Nombre completo</label>
+            <input type="text" id="editarNombre" value="${maestro.nombre || ""}" required>
+            <label>Teléfono</label>
+            <input type="tel" id="editarTelefono" value="${maestro.telefono || ""}">
+            <label>Estado</label>
+            <select id="editarEstado">
+                <option value="activo" ${maestro.estado === "activo" ? "selected" : ""}>Activo</option>
+                <option value="bloqueado" ${maestro.estado === "bloqueado" ? "selected" : ""}>Bloqueado</option>
+            </select>
+            <p style="margin-top:15px; color:#6E7175; font-size:13px;">
+                Nota: el ID (${maestro.codigo}) no se puede cambiar porque está ligado a su cuenta de acceso.
+                Si necesita otro ID, crea un maestro nuevo.
+            </p>
+            <button type="submit">💾 GUARDAR CAMBIOS</button>
+            <button type="button" id="btnVolverMaestros" class="btn-secondary">← Volver</button>
+            <p id="mensajeEditar" class="mensaje"></p>
+        </form>
+    `;
+
+    document.getElementById("btnVolverMaestros").addEventListener("click", mostrarPantallaMaestros);
+
+    document.getElementById("formEditarMaestro").addEventListener("submit", async e => {
+        e.preventDefault();
+
+        const mensaje = document.getElementById("mensajeEditar");
+        const nombre = document.getElementById("editarNombre").value.trim();
+        const telefono = document.getElementById("editarTelefono").value.trim();
+        const estado = document.getElementById("editarEstado").value;
+
+        if (!nombre) {
+            mensaje.textContent = "❌ El nombre es obligatorio.";
+            mensaje.style.color = "#c62828";
+            return;
+        }
+
+        mensaje.textContent = "Guardando...";
+
+        try {
+            await updateDoc(doc(db, "maestros", maestro.id), { nombre, telefono, estado });
+            mensaje.textContent = "✅ Cambios guardados.";
+            mensaje.style.color = "#2e7d32";
+            setTimeout(mostrarPantallaMaestros, 800);
+        } catch (error) {
+            console.error(error);
+            mensaje.textContent = error.message || "❌ No se pudieron guardar los cambios.";
+            mensaje.style.color = "#c62828";
+        }
+    });
+}
+
+// =====================================================
+// AGREGAR PUNTOS
+// =====================================================
+document.getElementById("btnAgregarPuntos").addEventListener("click", async () => {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>⭐ Agregar puntos</h2>
+            <p>Registra una suma o resta de puntos.</p>
+        </div>
+        <form id="formAgregarPuntos" class="admin-form">
+            <label>Maestro</label>
+            <select id="maestroPuntos" required>
+                <option value="">Cargando maestros...</option>
+            </select>
+            <label>Puntos</label>
+            <input type="number" id="cantidadPuntos" placeholder="Ej: 50 o -50" required>
+            <small>Número positivo = sumar. Número negativo = restar.</small>
+            <label>Motivo</label>
+            <input type="text" id="motivoPuntos" placeholder="Ej: Compra pagada" required>
+            <button type="submit">⭐ REGISTRAR PUNTOS</button>
+            <p id="mensajePuntos" class="mensaje"></p>
+        </form>
+    `;
+
+    const select = document.getElementById("maestroPuntos");
+
+    let maestros = [];
+    try {
+        const q = query(collection(db, "maestros"), where("estado", "==", "activo"));
+        const snapshot = await getDocs(q);
+        maestros = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => String(a.nombre).localeCompare(String(b.nombre)));
+    } catch (error) {
+        console.error(error);
+        select.innerHTML = `<option value="">❌ Error cargando maestros</option>`;
+        return;
+    }
+
+    select.innerHTML = `<option value="">Selecciona un maestro</option>`;
+    maestros.forEach(m => {
+        const option = document.createElement("option");
+        option.value = m.id;
+        option.textContent = `${m.nombre} — ${m.codigo} — ⭐ ${Number(m.puntos || 0).toLocaleString()}`;
+        select.appendChild(option);
+    });
+
+    document.getElementById("formAgregarPuntos").addEventListener("submit", async e => {
+        e.preventDefault();
+
+        const maestroId = select.value;
+        const puntos = Number(document.getElementById("cantidadPuntos").value);
+        const motivo = document.getElementById("motivoPuntos").value.trim();
+        const mensaje = document.getElementById("mensajePuntos");
+
+        if (!maestroId) {
+            mensaje.textContent = "❌ Selecciona un maestro.";
+            mensaje.style.color = "#c62828";
+            return;
+        }
+
+        if (!Number.isInteger(puntos) || puntos === 0) {
+            mensaje.textContent = "❌ Los puntos deben ser un número entero diferente de 0.";
+            mensaje.style.color = "#c62828";
+            return;
+        }
+
+        mensaje.textContent = "Guardando...";
+
+        try {
+            const maestroRef = doc(db, "maestros", maestroId);
+            let nuevoSaldo = 0;
+
+            await runTransaction(db, async (transaction) => {
+                const snap = await transaction.get(maestroRef);
+                if (!snap.exists()) throw new Error("El maestro ya no existe.");
+                const actual = Number(snap.data().puntos || 0);
+                nuevoSaldo = actual + puntos;
+                if (nuevoSaldo < 0) nuevoSaldo = 0;
+                transaction.update(maestroRef, { puntos: nuevoSaldo });
+            });
+
+            await addDoc(collection(db, "movimientos"), {
+                maestro_id: maestroId,
+                puntos,
+                motivo,
+                creado_at: serverTimestamp()
+            });
+
+            mensaje.textContent = `✅ Puntos registrados. Nuevo saldo: ${nuevoSaldo.toLocaleString()}`;
+            mensaje.style.color = "#2e7d32";
+            document.getElementById("formAgregarPuntos").reset();
+            cargarResumen();
+
+        } catch (error) {
+            console.error(error);
+            mensaje.textContent = error.message || "❌ No se pudieron registrar los puntos.";
+            mensaje.style.color = "#c62828";
+        }
+    });
+});
+
+// =====================================================
+// PREMIOS
+// =====================================================
+document.getElementById("btnPremios").addEventListener("click", mostrarPantallaPremios);
+
+async function mostrarPantallaPremios() {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>🎁 Premios</h2>
+            <p>Administra los premios disponibles.</p>
+        </div>
+        <button id="btnNuevoPremio" style="max-width:220px;">➕ Nuevo premio</button>
+        <div id="listaPremios" style="margin-top:20px;"><p>Cargando premios...</p></div>
+    `;
+
+    document.getElementById("btnNuevoPremio").addEventListener("click", () => mostrarFormularioPremio());
+
+    const lista = document.getElementById("listaPremios");
+
+    let premios = [];
+    try {
+        const q = query(collection(db, "premios"), orderBy("puntos", "asc"));
+        const snapshot = await getDocs(q);
+        premios = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (error) {
+        console.error(error);
+        lista.innerHTML = `<p class="mensaje">❌ No se pudieron cargar los premios.</p>`;
+        return;
+    }
+
+    if (premios.length === 0) {
+        lista.innerHTML = `
+            <div class="empty-state">
+                <h3>🎁 No hay premios todavía</h3>
+                <p>Crea el primero con el botón de arriba.</p>
+            </div>
+        `;
+        return;
+    }
+
+    lista.innerHTML = premios.map(p => `
+        <div class="maestro-card">
+            <div class="maestro-info">
+                ${p.imagen_url
+                    ? `<img src="${p.imagen_url}" alt="${p.nombre}" style="width:80px; height:80px; object-fit:cover; border-radius:12px;">`
+                    : `<div class="maestro-avatar">🎁</div>`
+                }
+                <div>
+                    <h3>${p.nombre}</h3>
+                    <p>⭐ ${Number(p.puntos || 0).toLocaleString()} puntos</p>
+                    <span class="estado ${p.disponible !== false ? "activo" : "bloqueado"}">
+                        ${p.disponible !== false ? "● Disponible" : "● Agotado"}
+                    </span>
+                </div>
+            </div>
+            <div class="maestro-actions">
+                <button class="btn-editar-premio" data-id="${p.id}">✏️ Editar</button>
+                <button class="btn-eliminar-premio" data-id="${p.id}">🗑️ Eliminar</button>
+            </div>
+        </div>
+    `).join("");
+
+    document.querySelectorAll(".btn-editar-premio").forEach(boton => {
+        boton.addEventListener("click", () => {
+            const premio = premios.find(p => p.id === boton.dataset.id);
+            if (premio) mostrarFormularioPremio(premio);
+        });
+    });
+
+    document.querySelectorAll(".btn-eliminar-premio").forEach(boton => {
+        boton.addEventListener("click", async () => {
+            const confirmar = confirm("¿Seguro que quieres eliminar este premio?");
+            if (!confirmar) return;
+            try {
+                await deleteDoc(doc(db, "premios", boton.dataset.id));
+                mostrarPantallaPremios();
+                cargarResumen();
+            } catch (error) {
+                console.error(error);
+                alert("❌ No se pudo eliminar el premio.");
+            }
+        });
+    });
+}
+
+function mostrarFormularioPremio(premio = null) {
+    const editando = premio !== null;
+
+    const nombreInicial = editando ? String(premio.nombre ?? "") : "";
+    const descripcionInicial = editando ? String(premio.descripcion ?? "") : "";
+    const puntosInicial = editando ? Number(premio.puntos ?? 0) : "";
+    const dineroInicial = editando ? Number(premio.dinero_adicional ?? 0) : 0;
+    const disponibleInicial = !editando || premio.disponible !== false;
+    const imagenInicial = editando ? String(premio.imagen_url ?? "") : "";
+
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>${editando ? "✏️ Editar premio" : "🎁 Crear premio"}</h2>
+        </div>
+        <form id="formPremio" class="admin-form">
+            <label>Nombre del premio</label>
+            <input type="text" id="premioNombre" value="${nombreInicial}" required>
+            <label>Descripción</label>
+            <textarea id="premioDescripcion" rows="3">${descripcionInicial}</textarea>
+            <label>Puntos necesarios</label>
+            <input type="number" id="premioPuntos" min="1" step="1" value="${puntosInicial}" required>
+            <label>Dinero adicional</label>
+            <input type="number" id="premioDinero" min="0" step="0.01" value="${dineroInicial}" required>
+            <label>URL de la imagen (opcional)</label>
+            <input type="url" id="premioImagen" placeholder="https://..." value="${imagenInicial}">
+            <small>Sube la imagen a un sitio como imgur.com y pega aquí el link directo.</small>
+            <label>
+                <input type="checkbox" id="premioDisponible" ${disponibleInicial ? "checked" : ""}>
+                Premio disponible
+            </label>
+            <button type="submit">💾 ${editando ? "GUARDAR CAMBIOS" : "CREAR PREMIO"}</button>
+            <button type="button" id="btnVolverPremios" class="btn-secondary">← Volver a premios</button>
+            <p id="mensajePremio" class="mensaje"></p>
+        </form>
+    `;
+
+    document.getElementById("btnVolverPremios").addEventListener("click", mostrarPantallaPremios);
+
+    document.getElementById("formPremio").addEventListener("submit", async e => {
+        e.preventDefault();
+
+        const mensaje = document.getElementById("mensajePremio");
+        const nombre = document.getElementById("premioNombre").value.trim();
+        const descripcion = document.getElementById("premioDescripcion").value.trim();
+        const puntos = Number(document.getElementById("premioPuntos").value);
+        const dinero = Number(document.getElementById("premioDinero").value);
+        const disponible = document.getElementById("premioDisponible").checked;
+        const imagen_url = document.getElementById("premioImagen").value.trim();
+
+        if (!nombre || !Number.isInteger(puntos) || puntos <= 0) {
+            mensaje.textContent = "❌ Revisa el nombre y los puntos.";
+            mensaje.style.color = "#c62828";
+            return;
+        }
+
+        mensaje.textContent = "Guardando...";
+
+        try {
+            const datos = { nombre, descripcion, puntos, dinero_adicional: dinero, disponible, imagen_url };
+
+            if (editando) {
+                await updateDoc(doc(db, "premios", premio.id), datos);
+            } else {
+                datos.creado_at = serverTimestamp();
+                await addDoc(collection(db, "premios"), datos);
+            }
+
+            mensaje.textContent = "✅ Guardado correctamente.";
+            mensaje.style.color = "#2e7d32";
+            setTimeout(() => { mostrarPantallaPremios(); cargarResumen(); }, 800);
+
+        } catch (error) {
+            console.error(error);
+            mensaje.textContent = error.message || "❌ No se pudo guardar el premio.";
+            mensaje.style.color = "#c62828";
+        }
+    });
+}
+
+// =====================================================
+// CANJES
+// =====================================================
+document.getElementById("btnCanjes").addEventListener("click", mostrarCanjes);
+
+async function mostrarCanjes() {
+    contenido.innerHTML = `
+        <div class="form-header">
+            <h2>🎟️ Canjes</h2>
+            <p>Solicitudes de premios realizadas por los maestros.</p>
+        </div>
+        <div id="listaCanjes"><p>⏳ Cargando solicitudes...</p></div>
+    `;
+
+    const listaCanjes = document.getElementById("listaCanjes");
+
+    let canjes = [];
+    try {
+        const q = query(collection(db, "canjes"), orderBy("creado_at", "desc"));
+        const snapshot = await getDocs(q);
+        canjes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (error) {
+        console.error(error);
+        listaCanjes.innerHTML = `<div class="empty-state"><h3>❌ Error</h3><p>${error.message}</p></div>`;
+        return;
+    }
+
+    if (canjes.length === 0) {
+        listaCanjes.innerHTML = `<div class="empty-state"><h3>🎟️ No hay canjes</h3><p>Todavía no hay solicitudes.</p></div>`;
+        return;
+    }
+
+    // Traer maestros y premios involucrados
+    const maestrosPorId = {};
+    const premiosPorId = {};
+
+    const maestrosIds = [...new Set(canjes.map(c => c.maestro_id))];
+    const premiosIds = [...new Set(canjes.map(c => c.premio_id))];
+
+    await Promise.all(maestrosIds.map(async id => {
+        const snap = await getDoc(doc(db, "maestros", id));
+        if (snap.exists()) maestrosPorId[id] = snap.data();
+    }));
+
+    await Promise.all(premiosIds.map(async id => {
+        const snap = await getDoc(doc(db, "premios", id));
+        if (snap.exists()) premiosPorId[id] = snap.data();
+    }));
+
+    listaCanjes.innerHTML = canjes.map(canje => {
+        const maestro = maestrosPorId[canje.maestro_id] || {};
+        const premio = premiosPorId[canje.premio_id] || {};
+        const fecha = canje.creado_at?.toDate ? canje.creado_at.toDate().toLocaleString("es-EC") : "Sin fecha";
+
+        let estadoTexto = "⏳ Pendiente";
+        let claseEstado = "pendiente";
+        if (canje.estado === "aprobado") { estadoTexto = "✅ Entregado"; claseEstado = "activo"; }
+        if (canje.estado === "cancelado") { estadoTexto = "❌ Cancelado"; claseEstado = "bloqueado"; }
+
+        return `
+            <div class="maestro-card">
+                <div class="maestro-info">
+                    ${premio.imagen_url
+                        ? `<img src="${premio.imagen_url}" alt="${premio.nombre || "Premio"}" style="width:80px;height:80px;object-fit:cover;border-radius:12px;">`
+                        : `<div class="maestro-avatar">🎁</div>`
+                    }
+                    <div>
+                        <h3>🎁 ${premio.nombre || "Premio no encontrado"}</h3>
+                        <p>👷 Maestro: <strong>${maestro.nombre || "No encontrado"}</strong></p>
+                        <p>🆔 ID: <strong>${maestro.codigo || "-"}</strong></p>
+                        <p>⭐ Puntos usados: <strong>${Number(canje.puntos || 0).toLocaleString()}</strong></p>
+                        <p>📅 ${fecha}</p>
+                        <span class="estado ${claseEstado}">${estadoTexto}</span>
+                    </div>
+                </div>
+                ${canje.estado === "pendiente" ? `
+                    <div class="maestro-actions">
+                        <button class="btn-aprobar-canje" data-id="${canje.id}">✅ ENTREGAR</button>
+                        <button class="btn-cancelar-canje" data-id="${canje.id}" data-maestro="${canje.maestro_id}" data-puntos="${canje.puntos}">❌ CANCELAR</button>
+                    </div>
+                ` : ""}
+            </div>
+        `;
+    }).join("");
+
+    document.querySelectorAll(".btn-aprobar-canje").forEach(boton => {
+        boton.addEventListener("click", async () => {
+            if (!confirm("¿Confirmas que ya entregaste este premio?")) return;
+            try {
+                await updateDoc(doc(db, "canjes", boton.dataset.id), { estado: "aprobado", aprobado_at: serverTimestamp() });
+                mostrarCanjes();
+                cargarResumen();
+            } catch (error) {
+                console.error(error);
+                alert("❌ No se pudo actualizar el canje.");
+            }
+        });
+    });
+
+    document.querySelectorAll(".btn-cancelar-canje").forEach(boton => {
+        boton.addEventListener("click", async () => {
+            if (!confirm("⚠️ ¿Seguro que quieres cancelar este canje? Se devolverán los puntos al maestro.")) return;
+            try {
+                const maestroId = boton.dataset.maestro;
+                const puntosDevolver = Number(boton.dataset.puntos || 0);
+
+                await runTransaction(db, async (transaction) => {
+                    const maestroRef = doc(db, "maestros", maestroId);
+                    const snap = await transaction.get(maestroRef);
+                    if (snap.exists()) {
+                        const actual = Number(snap.data().puntos || 0);
+                        transaction.update(maestroRef, { puntos: actual + puntosDevolver });
+                    }
+                    transaction.update(doc(db, "canjes", boton.dataset.id), { estado: "cancelado" });
+                });
+
+                mostrarCanjes();
+                cargarResumen();
+            } catch (error) {
+                console.error(error);
+                alert("❌ No se pudo cancelar el canje.");
+            }
+        });
+    });
+}
+
+// =====================================================
+// DASHBOARD (RESUMEN)
+// =====================================================
+async function cargarResumen() {
+    try {
+        const [maestrosSnap, premiosSnap, canjesSnap] = await Promise.all([
+            getDocs(collection(db, "maestros")),
+            getDocs(collection(db, "premios")),
+            getDocs(query(collection(db, "canjes"), where("estado", "==", "pendiente")))
+        ]);
+
+        document.getElementById("totalMaestros").textContent = maestrosSnap.size;
+        document.getElementById("totalPremios").textContent = premiosSnap.size;
+        document.getElementById("totalCanjes").textContent = canjesSnap.size;
+
+        let totalPuntos = 0;
+        maestrosSnap.forEach(d => { totalPuntos += Number(d.data().puntos || 0); });
+        document.getElementById("totalPuntos").textContent = totalPuntos.toLocaleString();
+
+    } catch (error) {
+        console.error("Error cargando resumen:", error);
+    }
+}
+
+console.log("✅ Panel Admin Ferretería Nayeli (Firebase) cargado correctamente.");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ¿El que pide es un admin? (su UID debe existir como documento en /admins)
+    function esAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Colección de maestros
+    match /maestros/{maestroId} {
+      allow read: if request.auth != null &&
+                     (request.auth.uid == maestroId || esAdmin());
+      allow create: if esAdmin();
+      allow update: if esAdmin() ||
+                       (request.auth != null && request.auth.uid == maestroId);
+      allow delete: if esAdmin();
+    }
+
+    // Colección de premios: cualquier maestro logueado puede leer, solo admin escribe
+    match /premios/{premioId} {
+      allow read: if request.auth != null;
+      allow write: if esAdmin();
+    }
+
+    // Colección de canjes
+    match /canjes/{canjeId} {
+      allow read: if request.auth != null &&
+                     (esAdmin() || resource.data.maestro_id == request.auth.uid);
+      allow create: if request.auth != null &&
+                       request.resource.data.maestro_id == request.auth.uid;
+      allow update: if esAdmin();
+      allow delete: if esAdmin();
+    }
+
+    // Historial de movimientos de puntos (solo admin)
+    match /movimientos/{movId} {
+      allow read, write: if esAdmin();
+    }
+
+    // Colección de admins: solo se puede leer (para saber si eres admin);
+    // se agrega manualmente desde la consola de Firebase.
+    match /admins/{uid} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+  }
+}

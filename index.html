@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Ferretería Nayeli | Programa de Maestros</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+    <main class="login-container">
+
+        <div class="login-card">
+
+            <div class="logo-container">
+
+                <img
+                    id="logoLogin"
+                    src="images/logo-nayeli.png"
+                    alt="Ferretería Nayeli"
+                >
+
+            </div>
+
+
+            <h1>
+            
+            </h1>
+
+
+            <p class="subtitle">
+                Ingresa a tu cuenta
+            </p>
+
+
+            <form id="loginMaestroForm">
+
+                <label for="codigo">
+                    ID de maestro
+                </label>
+
+                <input
+                    type="text"
+                    id="codigo"
+                    placeholder="Ejemplo: M-0001"
+                    autocomplete="username"
+                    required
+                >
+
+
+                <label for="pin">
+                    PIN
+                </label>
+
+                <input
+                    type="password"
+                    id="pin"
+                    placeholder="Ingresa tu PIN"
+                    inputmode="numeric"
+                    autocomplete="current-password"
+                    required
+                >
+
+
+                <button
+                    type="submit"
+                    id="btnIngresar"
+                >
+                    INGRESAR
+                </button>
+
+            </form>
+
+
+            <p
+                id="mensajeLogin"
+                class="mensaje"
+            ></p>
+
+
+        </div>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="app.js"
+    ></script>
+
+</body>
+
+</html>

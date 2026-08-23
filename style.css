@@ -1,0 +1,1018 @@
+/* =====================================================
+   FERRETERÍA NAYELI
+   IDENTIDAD VISUAL
+===================================================== */
+
+:root {
+    --tomate: #FF6A2A;
+    --tomate-hover: #E9571D;
+    --tomate-claro: #FFF0E8;
+
+    --blanco: #F2F2F0;
+    --blanco-puro: #FFFFFF;
+
+    --negro: #1A1C1F;
+    --negro-suave: #292C30;
+
+    --gris: #DCDDD9;
+    --gris-texto: #6E7175;
+
+    --verde: #2E7D32;
+    --rojo: #C62828;
+    --naranja: #F59E0B;
+
+    --sombra: 0 10px 30px rgba(26, 28, 31, 0.08);
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--blanco);
+    color: var(--negro);
+    min-height: 100vh;
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+.login-container {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+
+    background: var(--blanco-puro);
+
+    padding: 38px 30px;
+
+    border-radius: 20px;
+
+    border: 1px solid var(--gris);
+
+    box-shadow: var(--sombra);
+}
+
+.logo-container {
+    width: 100%;
+    height: 90px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.logo-container img {
+    max-width: 220px;
+    max-height: 80px;
+
+    object-fit: contain;
+}
+
+h1 {
+    text-align: center;
+
+    font-size: 26px;
+
+    margin-bottom: 8px;
+
+    color: var(--negro);
+}
+
+.subtitle {
+    text-align: center;
+
+    color: var(--gris-texto);
+
+    margin-bottom: 28px;
+}
+
+
+/* =====================================================
+   INPUTS GENERALES
+===================================================== */
+
+label {
+    display: block;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+    margin-top: 18px;
+
+    color: var(--negro);
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+
+    padding: 14px 15px;
+
+    border: 1px solid var(--gris);
+
+    border-radius: 10px;
+
+    background: var(--blanco-puro);
+
+    color: var(--negro);
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition: 0.2s ease;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--tomate);
+
+    box-shadow: 0 0 0 4px rgba(255, 106, 42, 0.12);
+}
+
+
+/* =====================================================
+   BOTONES GENERALES
+===================================================== */
+
+button {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 14px 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: var(--tomate);
+
+    color: var(--blanco-puro);
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: 
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+button:hover {
+    background: var(--tomate-hover);
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 18px rgba(255, 106, 42, 0.22);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+.mensaje {
+    text-align: center;
+
+    margin-top: 18px;
+
+    min-height: 20px;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   HEADER ADMIN
+===================================================== */
+
+.admin-header {
+    background: var(--negro);
+
+    color: var(--blanco-puro);
+
+    padding: 20px 28px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    border-bottom: 4px solid var(--tomate);
+}
+
+.admin-header h1 {
+    text-align: left;
+
+    margin: 0;
+
+    color: var(--blanco-puro);
+
+    font-size: 23px;
+
+    font-weight: 800;
+}
+
+.admin-header p {
+    color: #A9AAAC;
+
+    margin-top: 5px;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   CONTENEDOR ADMIN
+===================================================== */
+
+.admin-container {
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 30px 25px;
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+.dashboard-grid {
+    display: grid;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 28px;
+}
+
+.dashboard-card {
+    background: var(--blanco-puro);
+
+    border: 1px solid var(--gris);
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    box-shadow: var(--sombra);
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition: 0.2s ease;
+}
+
+.dashboard-card::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 5px;
+
+    background: var(--tomate);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+}
+
+.dashboard-card span {
+    display: block;
+
+    font-size: 28px;
+
+    margin-bottom: 10px;
+}
+
+.dashboard-card h3 {
+    margin: 0 0 7px;
+
+    font-size: 13px;
+
+    color: var(--gris-texto);
+
+    font-weight: 700;
+}
+
+.dashboard-card strong {
+    font-size: 28px;
+
+    color: var(--negro);
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   SECCIONES ADMIN
+===================================================== */
+
+.admin-section {
+    background: var(--blanco-puro);
+
+    padding: 28px;
+
+    border-radius: 20px;
+
+    margin-bottom: 25px;
+
+    border: 1px solid var(--gris);
+
+    box-shadow: var(--sombra);
+}
+
+.admin-section h2 {
+    color: var(--negro);
+
+    margin-bottom: 20px;
+
+    font-size: 22px;
+}
+
+
+/* =====================================================
+   ACCIONES DEL PANEL
+===================================================== */
+
+.admin-actions {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 15px;
+}
+
+.admin-action {
+    width: 100%;
+
+    margin: 0;
+
+    background: var(--blanco);
+
+    color: var(--negro);
+
+    border: 1px solid var(--gris);
+
+    padding: 22px;
+
+    border-radius: 16px;
+
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 7px;
+
+    box-shadow: none;
+
+    transition: 0.2s ease;
+}
+
+.admin-action:hover {
+    background: var(--blanco-puro);
+
+    border-color: var(--tomate);
+
+    box-shadow: 0 10px 22px rgba(26, 28, 31, 0.08);
+
+    transform: translateY(-3px);
+}
+
+.admin-action span {
+    font-size: 30px;
+}
+
+.admin-action strong {
+    font-size: 17px;
+
+    color: var(--negro);
+}
+
+.admin-action small {
+    color: var(--gris-texto);
+
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   BOTONES SECUNDARIOS
+===================================================== */
+
+.btn-secondary {
+    width: auto;
+
+    margin: 10px 8px 0 0;
+
+    background: var(--negro);
+
+    color: var(--blanco-puro);
+
+    padding: 11px 16px;
+
+    border-radius: 10px;
+
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: var(--negro-suave);
+
+    box-shadow: none;
+}
+
+
+/* =====================================================
+   FORMULARIOS ADMIN
+===================================================== */
+
+.admin-form {
+    max-width: 600px;
+}
+
+.admin-form label {
+    margin-top: 20px;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+    background: var(--blanco-puro);
+}
+
+.admin-form small {
+    display: block;
+
+    margin-top: 8px;
+
+    color: var(--gris-texto);
+
+    line-height: 1.4;
+}
+
+
+/* =====================================================
+   ENCABEZADO DE FORMULARIOS
+===================================================== */
+
+.form-header {
+    margin-bottom: 22px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid var(--gris);
+}
+
+.form-header h2,
+.form-header h3 {
+    color: var(--negro);
+}
+
+.form-header p {
+    color: var(--gris-texto);
+
+    margin-top: 6px;
+}
+
+
+/* =====================================================
+   BUSCADOR DE MAESTROS
+===================================================== */
+
+.buscador-maestros {
+    margin-bottom: 20px;
+
+    background: var(--blanco);
+}
+
+
+/* =====================================================
+   TARJETAS DE MAESTROS Y PREMIOS
+===================================================== */
+
+.maestro-card {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    background: var(--blanco-puro);
+
+    padding: 18px;
+
+    margin-bottom: 14px;
+
+    border: 1px solid var(--gris);
+
+    border-radius: 16px;
+
+    transition: 0.2s ease;
+}
+
+.maestro-card:hover {
+    border-color: var(--tomate);
+
+    box-shadow: 0 8px 20px rgba(26, 28, 31, 0.06);
+}
+
+.maestro-info {
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    min-width: 0;
+}
+
+.maestro-info h3 {
+    color: var(--negro);
+
+    margin-bottom: 6px;
+
+    font-size: 18px;
+}
+
+.maestro-info p {
+    color: var(--gris-texto);
+
+    margin-top: 4px;
+
+    font-size: 14px;
+}
+
+.maestro-avatar {
+    width: 58px;
+    height: 58px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: var(--tomate-claro);
+
+    border-radius: 15px;
+
+    font-size: 27px;
+}
+
+
+/* =====================================================
+   PUNTOS DEL MAESTRO
+===================================================== */
+
+.maestro-puntos {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    min-width: 100px;
+
+    padding: 12px 18px;
+
+    background: var(--tomate-claro);
+
+    border-radius: 14px;
+}
+
+.maestro-puntos span {
+    font-size: 20px;
+}
+
+.maestro-puntos strong {
+    color: var(--tomate);
+
+    font-size: 22px;
+}
+
+.maestro-puntos small {
+    color: var(--gris-texto);
+}
+
+
+/* =====================================================
+   ACCIONES EN TARJETAS
+===================================================== */
+
+.maestro-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: flex-end;
+
+    gap: 8px;
+}
+
+.maestro-actions button {
+    width: auto;
+
+    margin: 0;
+
+    padding: 10px 14px;
+
+    font-size: 13px;
+
+    background: var(--negro);
+
+    box-shadow: none;
+}
+
+.maestro-actions button:hover {
+    background: var(--tomate);
+
+    box-shadow: none;
+}
+
+
+/* =====================================================
+   ESTADOS
+===================================================== */
+
+.estado {
+    display: inline-block;
+
+    margin-top: 10px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+.estado.activo {
+    background: #E8F5E9;
+
+    color: var(--verde);
+}
+
+.estado.bloqueado {
+    background: #FDEAEA;
+
+    color: var(--rojo);
+}
+
+.estado.pendiente {
+    background: #FFF4D6;
+
+    color: #A86600;
+}
+
+
+/* =====================================================
+   PUNTOS GRANDES
+===================================================== */
+
+.puntos-grandes {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 30px;
+
+    margin-bottom: 25px;
+
+    background: var(--tomate-claro);
+
+    border: 1px solid rgba(255, 106, 42, 0.2);
+
+    border-radius: 20px;
+}
+
+.puntos-grandes span {
+    font-size: 35px;
+}
+
+.puntos-grandes strong {
+    font-size: 42px;
+
+    color: var(--tomate);
+
+    margin: 5px 0;
+}
+
+.puntos-grandes small {
+    color: var(--gris-texto);
+}
+
+
+/* =====================================================
+   HISTORIAL DE PUNTOS
+===================================================== */
+
+.movimiento-puntos {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    background: var(--blanco);
+
+    padding: 17px;
+
+    margin-bottom: 10px;
+
+    border-radius: 14px;
+
+    border: 1px solid var(--gris);
+}
+
+.movimiento-puntos strong {
+    font-size: 17px;
+
+    color: var(--negro);
+}
+
+.movimiento-puntos p {
+    margin: 5px 0 0;
+
+    color: var(--gris-texto);
+}
+
+.movimiento-puntos small {
+    color: var(--gris-texto);
+
+    text-align: right;
+}
+
+
+/* =====================================================
+   ESTADO VACÍO
+===================================================== */
+
+.empty-state {
+    text-align: center;
+
+    padding: 45px 20px;
+
+    background: var(--blanco);
+
+    border: 1px dashed var(--gris);
+
+    border-radius: 16px;
+}
+
+.empty-state h3 {
+    color: var(--negro);
+
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: var(--gris-texto);
+}
+
+
+/* =====================================================
+   IMÁGENES DE PREMIOS
+===================================================== */
+
+.maestro-info img {
+    flex-shrink: 0;
+
+    border: 1px solid var(--gris);
+}
+
+
+/* =====================================================
+   CHECKBOX
+===================================================== */
+
+input[type="checkbox"] {
+    width: auto;
+
+    accent-color: var(--tomate);
+
+    margin-right: 8px;
+}
+
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--blanco);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--negro-suave);
+
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--tomate);
+}
+
+
+/* =====================================================
+   CELULAR / TABLET
+===================================================== */
+
+@media (max-width: 900px) {
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .maestro-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .maestro-puntos {
+        align-items: flex-start;
+
+        width: 100%;
+    }
+
+    .maestro-actions {
+        width: 100%;
+
+        justify-content: flex-start;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .admin-header {
+        padding: 16px;
+
+        align-items: center;
+
+        gap: 12px;
+    }
+
+    .admin-header h1 {
+        font-size: 18px;
+    }
+
+    .admin-header p {
+        font-size: 12px;
+    }
+
+    .admin-header .btn-secondary {
+        padding: 9px 11px;
+
+        font-size: 12px;
+    }
+
+    .admin-container {
+        padding: 16px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+
+        gap: 10px;
+    }
+
+    .dashboard-card {
+        padding: 16px;
+    }
+
+    .dashboard-card strong {
+        font-size: 23px;
+    }
+
+    .dashboard-card span {
+        font-size: 23px;
+    }
+
+    .admin-section {
+        padding: 20px;
+
+        border-radius: 16px;
+    }
+
+    .admin-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .maestro-info {
+        align-items: flex-start;
+    }
+
+    .maestro-actions button {
+        flex: 1;
+    }
+
+    .movimiento-puntos {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .movimiento-puntos small {
+        text-align: left;
+    }
+
+    .puntos-grandes strong {
+        font-size: 34px;
+    }
+}
+
+/* ===== IMÁGENES / ICONOS ===== */
+
+.dashboard-icon {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    display: block;
+}
+
+.action-icon {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.marca-logo {
+    height: 100px;      /* ajusta según el tamaño de tu logo */
+    width: auto;
+    object-fit: contain;
+}
