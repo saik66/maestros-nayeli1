@@ -105,13 +105,32 @@ import {
 
 const contenido = document.getElementById("contenidoAdmin");
 
+// =====================================================
+// ESPERAR A QUE LA SESIÓN ESTÉ CONFIRMADA
+// =====================================================
+// Firestore rechaza las consultas ("insufficient permissions")
+// si se piden datos antes de que Firebase confirme la sesión.
+// Esta promesa se resuelve solo una vez, la primera vez que
+// Firebase nos dice si hay o no un usuario logueado.
+
+let resolverAuthListo;
+const authListo = new Promise(resolve => { resolverAuthListo = resolve; });
+
 // ===== VERIFICAR SESIÓN =====
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "admin.html";
-    } else {
-        cargarResumen();
+        return;
     }
+    resolverAuthListo();
+    cargarResumen();
+});
+
+// Deshabilita los botones de acción hasta que la sesión esté lista,
+// para que no se pueda hacer clic demasiado rápido al recargar la página.
+document.querySelectorAll(".admin-action").forEach(boton => boton.disabled = true);
+authListo.then(() => {
+    document.querySelectorAll(".admin-action").forEach(boton => boton.disabled = false);
 });
 
 // ===== CERRAR SESIÓN =====
@@ -148,6 +167,7 @@ document.getElementById("btnCrearMaestro").addEventListener("click", () => {
 
     formulario.addEventListener("submit", async e => {
         e.preventDefault();
+        await authListo;
 
         mensaje.textContent = "Creando maestro...";
         mensaje.style.color = "#555";
@@ -204,6 +224,7 @@ document.getElementById("btnCrearMaestro").addEventListener("click", () => {
 document.getElementById("btnVerMaestros").addEventListener("click", mostrarPantallaMaestros);
 
 async function mostrarPantallaMaestros() {
+    await authListo;
     contenido.innerHTML = `
         <div class="form-header">
             <h2>📋 Maestros</h2>
@@ -343,6 +364,7 @@ function abrirEditarMaestro(maestro) {
 // AGREGAR PUNTOS
 // =====================================================
 document.getElementById("btnAgregarPuntos").addEventListener("click", async () => {
+    await authListo;
     contenido.innerHTML = `
         <div class="form-header">
             <h2>⭐ Agregar puntos</h2>
@@ -446,6 +468,7 @@ document.getElementById("btnAgregarPuntos").addEventListener("click", async () =
 document.getElementById("btnPremios").addEventListener("click", mostrarPantallaPremios);
 
 async function mostrarPantallaPremios() {
+    await authListo;
     contenido.innerHTML = `
         <div class="form-header">
             <h2>🎁 Premios</h2>
@@ -610,6 +633,7 @@ function mostrarFormularioPremio(premio = null) {
 document.getElementById("btnCanjes").addEventListener("click", mostrarCanjes);
 
 async function mostrarCanjes() {
+    await authListo;
     contenido.innerHTML = `
         <div class="form-header">
             <h2>🎟️ Canjes</h2>
