@@ -63,14 +63,26 @@ body { margin: 0; background: #f5f5f5; font-family: Arial, sans-serif; color: #2
     overflow: hidden;
 }
 .btn-ver-mas {
-    background: none;
+    background: transparent;
     border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
     color: #C62828;
     font-size: 13px;
     font-weight: 600;
     padding: 4px 0 8px 0;
     cursor: pointer;
     text-align: left;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.btn-ver-mas:hover,
+.btn-ver-mas:focus,
+.btn-ver-mas:active {
+    background: transparent;
+    outline: none;
+    box-shadow: none;
+    color: #C62828;
 }
 .btn-ver-mas:hover { text-decoration: underline; }
 .premio-puntos { margin-top: 14px; font-size: 18px; font-weight: bold; }
