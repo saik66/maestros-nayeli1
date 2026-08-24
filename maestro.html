@@ -56,6 +56,23 @@ body { margin: 0; background: #f5f5f5; font-family: Arial, sans-serif; color: #2
 .premio-contenido { padding: 18px; }
 .premio-contenido h3 { margin: 0 0 7px; font-size: 19px; }
 .premio-descripcion { color: #777; font-size: 14px; line-height: 1.4; min-height: 40px; }
+.premio-descripcion.recortada {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.btn-ver-mas {
+    background: none;
+    border: none;
+    color: #C62828;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 0 8px 0;
+    cursor: pointer;
+    text-align: left;
+}
+.btn-ver-mas:hover { text-decoration: underline; }
 .premio-puntos { margin-top: 14px; font-size: 18px; font-weight: bold; }
 .premio-dinero { margin-top: 6px; color: #2e7d32; font-weight: bold; }
 
@@ -110,7 +127,7 @@ body { margin: 0; background: #f5f5f5; font-family: Arial, sans-serif; color: #2
 
 <header class="maestro-header">
     <div class="marca">
-    <img src="https://i.imgur.com/f88LEKn.png" alt="Ferretería Nayeli" class="marca-logo">
+    <img src="images/logo-nayeli.png" alt="Ferretería Nayeli" class="marca-logo">
     <div>
         <small></small>
     </div>
@@ -294,6 +311,9 @@ async function cargarPremios() {
         const puntosMaestro = Number(maestroActual?.puntos || 0);
         const puedeCanjear = puntosMaestro >= puntos && disponible;
 
+        const descripcionTexto = premio.descripcion || "Premio especial para maestros.";
+        const esLarga = descripcionTexto.length > 90;
+
         return `
             <article class="premio-card">
                 ${imagen
@@ -302,7 +322,8 @@ async function cargarPremios() {
                 }
                 <div class="premio-contenido">
                     <h3>${escapeHTML(premio.nombre || "Premio")}</h3>
-                    <div class="premio-descripcion">${escapeHTML(premio.descripcion || "Premio especial para maestros.")}</div>
+                    <div class="premio-descripcion ${esLarga ? "recortada" : ""}">${escapeHTML(descripcionTexto)}</div>
+                    ${esLarga ? `<button type="button" class="btn-ver-mas">Ver más ▾</button>` : ""}
                     <div class="premio-puntos">⭐ ${puntos.toLocaleString("es-EC")} puntos</div>
                     ${dinero > 0 ? `<div class="premio-dinero">💵 +$${dinero.toFixed(2)}</div>` : ""}
                     <button class="btn-canjear" data-id="${premio.id}" ${!puedeCanjear ? "disabled" : ""}>
@@ -313,6 +334,14 @@ async function cargarPremios() {
         `;
 
     }).join("");
+
+    document.querySelectorAll(".btn-ver-mas").forEach(boton => {
+        boton.addEventListener("click", () => {
+            const descripcion = boton.previousElementSibling;
+            const expandida = descripcion.classList.toggle("recortada") === false;
+            boton.textContent = expandida ? "Ver menos ▴" : "Ver más ▾";
+        });
+    });
 
     document.querySelectorAll(".btn-canjear").forEach(boton => {
         boton.addEventListener("click", () => {
