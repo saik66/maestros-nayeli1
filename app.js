@@ -6,6 +6,7 @@ import {
     auth,
     db,
     signInWithEmailAndPassword,
+    onAuthStateChanged,
     doc,
     getDoc,
     codigoAEmail
@@ -17,6 +18,29 @@ const codigoInput = document.getElementById("codigo");
 const pinInput = document.getElementById("pin");
 const mensaje = document.getElementById("mensajeLogin");
 const botonIngresar = document.getElementById("btnIngresar");
+
+
+// =====================================================
+// SI YA HAY SESIÓN ACTIVA, ENTRAR DIRECTO (sin pedir ID/PIN)
+// =====================================================
+
+onAuthStateChanged(auth, async (user) => {
+
+    if (!user) return; // no hay sesión, se queda en el login normal
+
+    try {
+        const snapshot = await getDoc(doc(db, "maestros", user.uid));
+
+        if (snapshot.exists() && snapshot.data().estado !== "bloqueado") {
+            window.location.href = "maestro.html";
+        }
+        // si está bloqueado o no existe, se queda en el login
+        // para que pueda ver el mensaje correspondiente si lo intenta
+
+    } catch (error) {
+        console.error("Error revisando sesión activa:", error);
+    }
+});
 
 
 function mostrarError(texto) {
