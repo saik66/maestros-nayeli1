@@ -6,6 +6,8 @@ import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebase
 
 import {
     getAuth,
+    setPersistence,
+    browserLocalPersistence,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut,
@@ -51,6 +53,7 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(err => console.error("Persistencia:", err));
 export const db = getFirestore(app);
 
 // Segunda instancia: se usa SOLO para crear cuentas de maestros
